@@ -1,4 +1,6 @@
-package com.z_iti_271304_u2_e03;
+package com.z_iti_271304_u2_e03.simulation;
+
+import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -8,7 +10,7 @@ public class SimulationThread implements Runnable {
     private double populationCount = 2; // Población inicial
     private final float K = 0.002f;
     private final int MAX = 1450;
-    private boolean limitedFoodEventActive = false; // Estado del evento de comida limitada
+    private boolean limitedFoodEventActive = false;
     private boolean predatorEventActive = false;
 
     private int generationCount = 0;
@@ -17,7 +19,6 @@ public class SimulationThread implements Runnable {
     // Lista de listeners
     private List<SimulationListener> listeners = new ArrayList<>();
 
-    // Método para agregar listeners
     public void addListener(SimulationListener listener) {
         listeners.add(listener);
     }
@@ -25,41 +26,52 @@ public class SimulationThread implements Runnable {
     @Override
     public void run() {
         try {
-            // Detener el hilo cuando la población haya superado el máximo
+            // el hilo muere cuando la población alcanza el límite
             while (populationCount < MAX) {
-                // Duración de cada generación
-                Thread.sleep(generationIntervalMillis);
+                Thread.sleep(generationIntervalMillis); // duración de cada generación
 
-                // Si el evento de depredador está activo, reducir la población en un 90%
                 if (predatorEventActive) {
                     populationCount *= 0.1; // Reducir la población en un 90%
-                    predatorEventActive = false; // Desactivar el evento después de aplicarlo
-                    System.out.println("Población reducida:" + populationCount);
+                    predatorEventActive = false;
+                    Log.d("SimulationThread", "Población reducida:" + populationCount);
 
-                    // Verificar si la población es menor a 2
+                    // si la población es menor a 2, la simulación termina
                     if (populationCount < 2) {
-                        throw new PopulationTooLowException("La población es demasiado baja después del ataque de depredadores.");
+                        notifyErrorListeners("Toda la población ha muerto");
                     }
                 }
 
-                // Calcular el crecimiento de la población si el evento de depredador no está activo
-                populationCount += K * populationCount * (MAX - populationCount); // Modelo de crecimiento
+                // TODO aqui van más eventos
+                // TODO implementar mutaciones
+
+                /* Modelo de crecimiento
+                 * Ver: https://homework.study.com/explanation/6-solve-using-differential-equations-population-growth-let-n-t-represents-the-number-of-rabbits-in-a-habitat-after-t-month-the-growth-rate-of-the-rabbits-is-k-given-the-model-n-t-kn-t-2500-n.html
+                 *
+                 * Si la población nunca se ve afectada por eventos, la población sige creciendo
+                 * exponencialmente hasta alcanzar 6 generaciones.
+                 */
+                populationCount += K * populationCount * (MAX - populationCount);
                 generationCount++;
 
-                System.out.println("Generation " + generationCount + " of " + populationCount);
+                Log.d("SimulationThread", "Generación " + generationCount + ", Población: " + populationCount);
 
                 // Notificar a los listeners sobre el estado actual
                 notifyListeners();
             }
         } catch (InterruptedException e) {
-            System.out.println("Simulación interrumpida");
+            Log.d("SimulationThread", "Hilo interrumpido");
         }
 
         // Si el bucle termina, los conejos han dominado el mundo
-        throw new WorldDominationException("Los conejos han dominado al mundo");
+        notifyErrorListeners("Los conejos han dominado el mundo.");
     }
 
-    // Método para notificar a los listeners
+    private void notifyErrorListeners(String errorMessage) {
+        for (SimulationListener listener : listeners) {
+            listener.onError(errorMessage);
+        }
+    }
+
     private void notifyListeners() {
         for (SimulationListener listener : listeners) {
             listener.onUpdate(generationCount, populationCount, predatorEventActive, limitedFoodEventActive);
@@ -69,33 +81,10 @@ public class SimulationThread implements Runnable {
     public void triggerEvent(SimulationEvents event) {
         if (event == SimulationEvents.LIMITED_FOOD_EVENT) {
             limitedFoodEventActive = true;
-            System.out.println(event.toString());
+            Log.d("SimulationThread", "Evento de comida limitada activado");
         } else if (event == SimulationEvents.PREDATOR_EVENT) {
             predatorEventActive = !predatorEventActive;
-            System.out.println(event);
-        }
-    }
-
-    public static void main(String[] args) {
-        SimulationThread simulationThread = new SimulationThread();
-        Thread thread = new Thread(simulationThread);
-
-        // Agregar un listener que imprimirá el estado de la simulación
-        simulationThread.addListener((generationCount, populationCount, predatorActive, limitedFoodActive) -> {
-            System.out.println("Listener: Generación " + generationCount + ", Población: " + populationCount +
-                    ", Depredador activo: " + predatorActive + ", Comida limitada: " + limitedFoodActive);
-        });
-
-        thread.start();
-
-        // Para probar el evento de depredador
-        try {
-            Thread.sleep(5000); // Simular algunas generaciones
-            simulationThread.triggerEvent(SimulationEvents.PREDATOR_EVENT);
-            Thread.sleep(1000);
-            simulationThread.triggerEvent(SimulationEvents.PREDATOR_EVENT);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
+            Log.d("SimulationThread", "Evento de depredador activado");
         }
     }
 }
