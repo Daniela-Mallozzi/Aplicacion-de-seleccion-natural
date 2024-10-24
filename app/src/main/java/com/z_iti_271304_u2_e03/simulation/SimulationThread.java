@@ -13,6 +13,7 @@ public class SimulationThread implements Runnable {
     private boolean predatorEventActive = false;
     private boolean badFoodEventActive = false;
 
+    private boolean stopThread = false;
     private int generationCount = 0;
     private int generationIntervalMillis = 1000;
 
@@ -27,17 +28,18 @@ public class SimulationThread implements Runnable {
     public void run() {
         try {
             // el hilo muere cuando la población alcanza el límite
-            while (populationCount < MAX) {
+            while (populationCount < MAX && !stopThread) {
                 Thread.sleep(generationIntervalMillis); // duración de cada generación
 
                 if (predatorEventActive) {
                     populationCount *= 0.1; // Reducir la población en un 90%
-                    predatorEventActive = false;
                     Log.d("SimulationThread", "Población reducida:" + populationCount);
 
                     // si la población es menor a 2, la simulación termina
                     if (populationCount < 2) {
                         notifyErrorListeners("Toda la población ha muerto");
+                        stopThread = true;
+                        break;
                     }
                 }
 
@@ -72,8 +74,10 @@ public class SimulationThread implements Runnable {
             Log.d("SimulationThread", "Hilo interrumpido");
         }
 
+        String endMessage = stopThread ? "La simulación ha terminado" : "La población ha alcanzado el límite";
+
         // Si el bucle termina, los conejos han dominado el mundo
-        notifyErrorListeners("Los conejos han dominado el mundo.");
+        notifyErrorListeners(endMessage);
     }
 
     private void notifyErrorListeners(String errorMessage) {
@@ -93,10 +97,10 @@ public class SimulationThread implements Runnable {
             predatorEventActive = !predatorEventActive;
             Log.d("SimulationThread", event + "active");
         } else if (event == SimulationEvents.LOW_FOOD_EVENT) {
-            lowFoodEventActive = true;
+            lowFoodEventActive = !lowFoodEventActive;
             Log.d("SimulationThread", event + "active");
         } else if (event == SimulationEvents.BAD_FOOD_EVENT) {
-            badFoodEventActive = true;
+            badFoodEventActive = !badFoodEventActive;
             Log.d("SimulationThread", event + "active");
         }
     }

@@ -16,6 +16,7 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import com.z_iti_271304_u2_e03.simulation.SimulationEvent;
 import com.z_iti_271304_u2_e03.simulation.SimulationEvents;
 import com.z_iti_271304_u2_e03.simulation.SimulationListener;
 import com.z_iti_271304_u2_e03.simulation.SimulationThread;
@@ -29,8 +30,12 @@ public class MainActivity extends AppCompatActivity {
     private LinearLayout radioGroupContainer;
     private LinearLayout checkboxGroupContainer;
 
-    private String[] mutationOptions = new String[]{"Piel", "Orejas", "Dientes"};
-    private String[] eventOptions = new String[]{"Depredador", "Alimento bajo", "Alimento malo"};
+    private final String[] mutationOptions = new String[]{"Piel", "Orejas", "Dientes"};
+    private final SimulationEvent[] eventOptions = new SimulationEvent[]{
+            new SimulationEvent("Depredador", SimulationEvents.PREDATOR_EVENT),
+            new SimulationEvent("Alimento bajo", SimulationEvents.LOW_FOOD_EVENT),
+            new SimulationEvent("Alimento malo", SimulationEvents.BAD_FOOD_EVENT)
+    };
 
     private CheckBox predatorCheckBox;
     private CheckBox lowFoodCheckBox;
@@ -120,34 +125,15 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void generateCheckBoxes() {
-        // Crear CheckBox para "Depredador"
-        predatorCheckBox = new CheckBox(this);
-        predatorCheckBox.setText("Depredador");
-        predatorCheckBox.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            if (simulationThread != null) {
-                simulationThread.triggerEvent(SimulationEvents.PREDATOR_EVENT);
-            }
-        });
-        checkboxGroupContainer.addView(predatorCheckBox);
-
-        // Crear CheckBox para "Alimento bajo"
-        lowFoodCheckBox = new CheckBox(this);
-        lowFoodCheckBox.setText("Alimento bajo");
-        lowFoodCheckBox.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            if (simulationThread != null) {
-                simulationThread.triggerEvent(SimulationEvents.LOW_FOOD_EVENT);
-            }
-        });
-        checkboxGroupContainer.addView(lowFoodCheckBox);
-
-        // Crear CheckBox para "Alimento malo"
-        badFoodCheckBox = new CheckBox(this);
-        badFoodCheckBox.setText("Alimento malo");
-        badFoodCheckBox.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            if (simulationThread != null) {
-                simulationThread.triggerEvent(SimulationEvents.BAD_FOOD_EVENT);
-            }
-        });
-        checkboxGroupContainer.addView(badFoodCheckBox);
+        for (SimulationEvent simulationEvent : eventOptions) {
+            CheckBox checkBox = new CheckBox(this);
+            checkBox.setText(simulationEvent.name);
+            checkBox.setOnCheckedChangeListener((buttonView, isChecked) -> {
+                if (simulationThread != null) {
+                    simulationThread.triggerEvent(simulationEvent.type);
+                }
+            });
+            checkboxGroupContainer.addView(checkBox);
+        }
     }
 }
