@@ -122,13 +122,9 @@ public class MainActivity extends AppCompatActivity {
     // TODO cambiar las variables locales por atributos para poder acceder a los valores desde otro alcance
     private void generateCheckBoxes() {
         for (String option : eventOptions) {
-            TextView textView = new TextView(this);
-            textView.setText(option);
-
             CheckBox checkBox1 = new CheckBox(this);
-            checkBox1.setText("Activo");
+            checkBox1.setText(option);
 
-            checkboxGroupContainer.addView(textView);
             checkboxGroupContainer.addView(checkBox1);
         }
     }

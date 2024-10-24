@@ -18,22 +18,30 @@
             android:layout_height="wrap_content"/>
 
         <LinearLayout
-            android:id="@+id/radio_group_container"
-            android:orientation="vertical"
-            android:layout_width="match_parent"
-            android:padding="16dp"
-            android:elevation="4dp"
-            android:background="@drawable/card_background"
-            android:layout_height="wrap_content"/>
-
-        <LinearLayout
-            android:id="@+id/checkbox_container"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:padding="16dp"
-            android:elevation="4dp"
-            android:background="@drawable/card_background"
-            android:orientation="vertical"/>
+            android:orientation="horizontal">
+
+            <LinearLayout
+                android:id="@+id/radio_group_container"
+                android:orientation="vertical"
+                android:layout_width="0dp"
+                android:layout_weight="2"
+                android:padding="16dp"
+                android:elevation="4dp"
+                android:background="@drawable/card_background"
+                android:layout_height="match_parent"/>
+
+            <LinearLayout
+                android:id="@+id/checkbox_container"
+                android:layout_width="0dp"
+                android:layout_weight="2"
+                android:layout_height="match_parent"
+                android:padding="16dp"
+                android:elevation="4dp"
+                android:background="@drawable/card_background"
+                android:orientation="vertical"/>
+        </LinearLayout>
 
         <LinearLayout
             android:orientation="horizontal"
