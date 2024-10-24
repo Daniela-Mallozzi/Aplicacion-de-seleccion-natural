@@ -2,6 +2,8 @@ package com.z_iti_271304_u2_e03;
 
 import android.app.Dialog;
 import android.os.Bundle;
+import android.util.Log;
+import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.CheckBox;
@@ -99,10 +101,42 @@ public class MainActivity extends AppCompatActivity {
                         dialogButton.setOnClickListener(v -> dialog.dismiss());
                     });
                 }
+
+                @Override
+                public void onFinish() {
+                    runOnUiThread(() -> {
+                        resetForm();
+                    });
+                }
             });
         });
     }
 
+    /**
+     * Reinicia los controles de la interfaz
+     */
+    private void resetForm() {
+        for (int i = 0; i < radioGroupContainer.getChildCount(); i++) {
+            View view = radioGroupContainer.getChildAt(i);
+
+            // Los radioGroups tienen TextViews así que hay que filtrar los que no sean RadioGroups
+            if (view instanceof RadioGroup) {
+                RadioGroup radioGroup = (RadioGroup) radioGroupContainer.getChildAt(i);
+                radioGroup.clearCheck();
+            }
+        }
+
+        for (int i = 0; i < checkboxGroupContainer.getChildCount(); i++) {
+            CheckBox checkBox = (CheckBox) checkboxGroupContainer.getChildAt(i);
+            checkBox.setChecked(false);
+        }
+    }
+
+    /**
+     * Genera los RadioGroups con las opciones de mutación
+     */
+    // TODO Hay que bloquear los radiogroups después de iniciar la simulación, ya que no se pueden
+    //  cambiar las mutaciones una vez iniciada la simulación
     private void generateRadioGroups() {
         for (String option : mutationOptions) {
             RadioGroup radioGroup = new RadioGroup(this);
@@ -124,6 +158,9 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Genera los CheckBoxes con las opciones de eventos
+     */
     private void generateCheckBoxes() {
         for (SimulationEvent simulationEvent : eventOptions) {
             CheckBox checkBox = new CheckBox(this);
