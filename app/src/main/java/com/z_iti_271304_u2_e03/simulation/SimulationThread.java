@@ -6,12 +6,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class SimulationThread implements Runnable {
-
     private double populationCount = 2; // Población inicial
     private final float K = 0.002f;
     private final int MAX = 1450;
-    private boolean limitedFoodEventActive = false;
+    private boolean lowFoodEventActive = false;
     private boolean predatorEventActive = false;
+    private boolean badFoodEventActive = false;
 
     private int generationCount = 0;
     private int generationIntervalMillis = 1000;
@@ -41,7 +41,17 @@ public class SimulationThread implements Runnable {
                     }
                 }
 
-                // TODO aqui van más eventos
+                // TODO lógica de eventos pendiente
+                if (lowFoodEventActive) {
+                    Log.d("SimulationThread", "LOW_FOOD_EVENT active");
+                    lowFoodEventActive = false;
+                }
+
+                if (badFoodEventActive) {
+                    Log.d("SimulationThread", "BAD_FOOD_EVENT active");
+                    badFoodEventActive = false;
+                }
+
                 // TODO implementar mutaciones
 
                 /* Modelo de crecimiento
@@ -74,17 +84,20 @@ public class SimulationThread implements Runnable {
 
     private void notifyListeners() {
         for (SimulationListener listener : listeners) {
-            listener.onUpdate(generationCount, populationCount, predatorEventActive, limitedFoodEventActive);
+            listener.onUpdate(generationCount, populationCount, predatorEventActive, lowFoodEventActive);
         }
     }
 
     public void triggerEvent(SimulationEvents event) {
-        if (event == SimulationEvents.LIMITED_FOOD_EVENT) {
-            limitedFoodEventActive = true;
-            Log.d("SimulationThread", "Evento de comida limitada activado");
-        } else if (event == SimulationEvents.PREDATOR_EVENT) {
+        if (event == SimulationEvents.PREDATOR_EVENT) {
             predatorEventActive = !predatorEventActive;
-            Log.d("SimulationThread", "Evento de depredador activado");
+            Log.d("SimulationThread", event + "active");
+        } else if (event == SimulationEvents.LOW_FOOD_EVENT) {
+            lowFoodEventActive = true;
+            Log.d("SimulationThread", event + "active");
+        } else if (event == SimulationEvents.BAD_FOOD_EVENT) {
+            badFoodEventActive = true;
+            Log.d("SimulationThread", event + "active");
         }
     }
 }
