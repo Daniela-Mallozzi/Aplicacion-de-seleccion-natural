@@ -28,7 +28,7 @@ public class SimulationThread implements Runnable {
     public void run() {
         try {
             // el hilo muere cuando la población alcanza el límite
-            while (populationCount < MAX && !stopThread) {
+            while (populationCount < MAX) {
                 Thread.sleep(generationIntervalMillis); // duración de cada generación
 
                 if (predatorEventActive) {
