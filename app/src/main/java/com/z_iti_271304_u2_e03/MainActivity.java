@@ -16,6 +16,7 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import com.z_iti_271304_u2_e03.simulation.SimulationEvents;
 import com.z_iti_271304_u2_e03.simulation.SimulationListener;
 import com.z_iti_271304_u2_e03.simulation.SimulationThread;
 
@@ -28,8 +29,14 @@ public class MainActivity extends AppCompatActivity {
     private LinearLayout radioGroupContainer;
     private LinearLayout checkboxGroupContainer;
 
-    private String[] mutationOptions = new String[] {"Piel", "Orejas", "Dientes"};
-    private String[] eventOptions = new String[] {"Depredador", "Alimento bajo", "Alimento malo"};
+    private String[] mutationOptions = new String[]{"Piel", "Orejas", "Dientes"};
+    private String[] eventOptions = new String[]{"Depredador", "Alimento bajo", "Alimento malo"};
+
+    private CheckBox predatorCheckBox;
+    private CheckBox lowFoodCheckBox;
+    private CheckBox badFoodCheckBox;
+
+    private SimulationThread simulationThread;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,8 +59,6 @@ public class MainActivity extends AppCompatActivity {
         generateRadioGroups();
         generateCheckBoxes();
 
-        // TODO modificar visibilidad del último radio group según la configuración de la simulación
-
         startSimulationButton.setOnClickListener(view -> {
             // diálogo personalizado en caso de recibir un error en el listener
             Dialog dialog = new Dialog(this);
@@ -61,14 +66,13 @@ public class MainActivity extends AppCompatActivity {
             Button dialogButton;
 
             dialog.setContentView(R.layout.message_dialog);
-            // Hacer que el ancho del diálogo tome el ancho de la pantalla
             dialog.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
 
             // controles del diálogo
             dialogMessage = dialog.findViewById(R.id.message_text);
             dialogButton = dialog.findViewById(R.id.ok_button);
 
-            SimulationThread simulationThread = new SimulationThread();
+            simulationThread = new SimulationThread();
             Thread thread = new Thread(simulationThread);
             thread.start();
 
@@ -94,10 +98,6 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    // TODO cambiar las variables locales por atributos para poder acceder a los valores desde otro alcance
-    /* Campos para elegir las mutaciones de la simulación
-     * se genera dinamicamente los radio groups y sus botones
-     */
     private void generateRadioGroups() {
         for (String option : mutationOptions) {
             RadioGroup radioGroup = new RadioGroup(this);
@@ -119,13 +119,35 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    // TODO cambiar las variables locales por atributos para poder acceder a los valores desde otro alcance
     private void generateCheckBoxes() {
-        for (String option : eventOptions) {
-            CheckBox checkBox1 = new CheckBox(this);
-            checkBox1.setText(option);
+        // Crear CheckBox para "Depredador"
+        predatorCheckBox = new CheckBox(this);
+        predatorCheckBox.setText("Depredador");
+        predatorCheckBox.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            if (simulationThread != null) {
+                simulationThread.triggerEvent(SimulationEvents.PREDATOR_EVENT);
+            }
+        });
+        checkboxGroupContainer.addView(predatorCheckBox);
 
-            checkboxGroupContainer.addView(checkBox1);
-        }
+        // Crear CheckBox para "Alimento bajo"
+        lowFoodCheckBox = new CheckBox(this);
+        lowFoodCheckBox.setText("Alimento bajo");
+        lowFoodCheckBox.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            if (simulationThread != null) {
+                simulationThread.triggerEvent(SimulationEvents.LOW_FOOD_EVENT);
+            }
+        });
+        checkboxGroupContainer.addView(lowFoodCheckBox);
+
+        // Crear CheckBox para "Alimento malo"
+        badFoodCheckBox = new CheckBox(this);
+        badFoodCheckBox.setText("Alimento malo");
+        badFoodCheckBox.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            if (simulationThread != null) {
+                simulationThread.triggerEvent(SimulationEvents.BAD_FOOD_EVENT);
+            }
+        });
+        checkboxGroupContainer.addView(badFoodCheckBox);
     }
 }
