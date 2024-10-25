@@ -111,6 +111,12 @@ public class MainActivity extends AppCompatActivity {
         generateCheckBoxes();
 
         startSimulationButton.setOnClickListener(view -> {
+            // resetear la gráfica al iniciar la simulación
+            populationDataSet.clear();
+            lineData.notifyDataChanged();
+            lineChart.notifyDataSetChanged();
+            lineChart.invalidate();
+
             // diálogo personalizado en caso de recibir un error en el listener
             Dialog dialog = new Dialog(this);
             TextView dialogMessage;
@@ -136,9 +142,10 @@ public class MainActivity extends AppCompatActivity {
                         populationCountTextView.setText("population_count: " + populationCount);
                         activeEventsTextView.setText("Events: " + (predatorEventActive ? "Predator Active" : "No Predator") + ", " + (limitedFoodEventActive ? "Limited Food" : "Food Available"));
 
+                        // actualizar la gráfica con los datos de la simulación en tiempo real
                         populationDataSet.addEntry(new Entry(generationCount, (float) populationCount));
-                        lineData.notifyDataChanged(); // Notificar que los datos han cambiado
-                        lineChart.notifyDataSetChanged(); // Notificar al gráfico que los datos han cambiado
+                        lineData.notifyDataChanged();
+                        lineChart.notifyDataSetChanged();
                         lineChart.invalidate();
                     });
                 }
