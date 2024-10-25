@@ -61,6 +61,7 @@ public class MainActivity extends AppCompatActivity {
     private TextView activeEventsTextView;
     private LinearLayout radioGroupContainer;
     private LinearLayout checkboxGroupContainer;
+    private boolean isSimulationRunning = false;
 
     private final String[] mutationOptions = new String[]{"Piel", "Orejas", "Dientes"};
     private final SimulationEvent[] eventOptions = new SimulationEvent[]{
@@ -117,6 +118,9 @@ public class MainActivity extends AppCompatActivity {
             lineChart.notifyDataSetChanged();
             lineChart.invalidate();
 
+            isSimulationRunning = true;
+            resetForm();
+
             // diálogo personalizado en caso de recibir un error en el listener
             Dialog dialog = new Dialog(this);
             TextView dialogMessage;
@@ -162,7 +166,8 @@ public class MainActivity extends AppCompatActivity {
                 @Override
                 public void onFinish() {
                     runOnUiThread(() -> {
-                        resetForm();
+                        // resetForm();
+                        isSimulationRunning = false;
                     });
                 }
             });
@@ -180,6 +185,9 @@ public class MainActivity extends AppCompatActivity {
             if (view instanceof RadioGroup) {
                 RadioGroup radioGroup = (RadioGroup) radioGroupContainer.getChildAt(i);
                 radioGroup.clearCheck();
+                for (int j = 0; j < radioGroup.getChildCount(); j++) {
+                    radioGroup.getChildAt(j).setEnabled(true);
+                }
             }
         }
 
@@ -209,6 +217,17 @@ public class MainActivity extends AppCompatActivity {
             radioGroup.setOrientation(LinearLayout.HORIZONTAL);
             radioGroup.addView(type1);
             radioGroup.addView(type2);
+
+            RadioGroup.OnCheckedChangeListener listener = (group, checkedId) -> {
+                if (isSimulationRunning) {
+                    group.setEnabled(false);
+                    for (int i = 0; i < group.getChildCount(); i++) {
+                        group.getChildAt(i).setEnabled(false);
+                    }
+                }
+            };
+
+            radioGroup.setOnCheckedChangeListener(listener);
 
             radioGroupContainer.addView(textView);
             radioGroupContainer.addView(radioGroup);
