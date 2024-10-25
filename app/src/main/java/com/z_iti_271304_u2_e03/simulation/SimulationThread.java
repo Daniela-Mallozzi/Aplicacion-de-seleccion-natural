@@ -75,14 +75,9 @@ public class SimulationThread implements Runnable {
             Log.d("SimulationThread", "Hilo interrumpido");
         }
 
-        String endMessage = null;
+        String endMessage = stopThread ? "La simulación ha terminado" : "La población ha alcanzado el límite";
         notifyFinishListeners();
-        if (stopThread) {
-            endMessage = "La simulación ha terminado";
-        } else {
-            notifyFinishListeners();
-            endMessage = "La población ha alcanzado el límite";
-        }
+        notifyErrorListeners(endMessage);
 
         // Si el bucle termina, los conejos han dominado el mundo
         notifyErrorListeners(endMessage);

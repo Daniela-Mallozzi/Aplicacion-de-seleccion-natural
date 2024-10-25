@@ -11,6 +11,12 @@
         android:orientation="vertical"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
+
+        <com.github.mikephil.charting.charts.LineChart
+            android:id="@+id/line_chart"
+            android:layout_width="match_parent"
+            android:layout_height="300dp" />
+
         <Button
             android:id="@+id/start_simulation"
             android:text="Iniciar"

@@ -1,6 +1,29 @@
 package com.z_iti_271304_u2_e03;
 
+/**
+ * Para poder compilar este código se necesita añadir la siguiente librería:
+ * https://github.com/PhilJay/MPAndroidChart
+ *
+ * 1. En el archivo settings.gradle.kts, añadir la siguiente línea de código:
+ *
+ *  maven { url = uri("https://jitpack.io") }
+ *
+ *  DENTRO DE:
+ *
+ * dependencyResolutionManagement {
+ *   repositories {
+ *      ...
+ *      maven { url = uri("https://jitpack.io") }
+ *   }
+ * }
+ *
+ * 2. En el archivo build.gradle.kts, añadir la siguiente línea de código en dependencies:
+ *      implementation("com.github.PhilJay:MPAndroidChart:v3.1.0")
+ */
+
+import java.util.ArrayList;
 import android.app.Dialog;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -18,6 +41,10 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import com.github.mikephil.charting.charts.LineChart;
+import com.github.mikephil.charting.data.Entry;
+import com.github.mikephil.charting.data.LineDataSet;
+import com.github.mikephil.charting.data.LineData;
 import com.z_iti_271304_u2_e03.simulation.SimulationEvent;
 import com.z_iti_271304_u2_e03.simulation.SimulationEvents;
 import com.z_iti_271304_u2_e03.simulation.SimulationListener;
@@ -25,6 +52,9 @@ import com.z_iti_271304_u2_e03.simulation.SimulationThread;
 
 public class MainActivity extends AppCompatActivity {
 
+    private LineDataSet populationDataSet;
+    private LineData lineData;
+    private LineChart lineChart;
     private Button startSimulationButton;
     private TextView generationCountTextView;
     private TextView populationCountTextView;
@@ -56,6 +86,20 @@ public class MainActivity extends AppCompatActivity {
             return insets;
         });
 
+        lineChart = findViewById(R.id.line_chart);
+        populationDataSet = new LineDataSet(new ArrayList<>(), "Population Over Time");
+        populationDataSet.setColor(Color.BLACK);
+        populationDataSet.setCircleColor(Color.BLACK);
+        populationDataSet.setLineWidth(2f);
+        populationDataSet.setCircleRadius(3f);
+        populationDataSet.setDrawValues(false);
+        populationDataSet.setMode(LineDataSet.Mode.STEPPED);
+
+        lineData = new LineData(populationDataSet);
+        lineChart.setData(lineData);
+        lineChart.getDescription().setText("Simulation Population");
+        lineChart.invalidate();
+
         startSimulationButton = findViewById(R.id.start_simulation);
         generationCountTextView = findViewById(R.id.generation_count);
         populationCountTextView = findViewById(R.id.population_count);
@@ -84,12 +128,18 @@ public class MainActivity extends AppCompatActivity {
             thread.start();
 
             simulationThread.addListener(new SimulationListener() {
+                // TODO implementar arrays de eventos y mutaciones en vez de usar variables booleanas
                 @Override
                 public void onUpdate(int generationCount, double populationCount, boolean predatorEventActive, boolean limitedFoodEventActive) {
                     runOnUiThread(() -> {
                         generationCountTextView.setText("generation_count: " + generationCount);
                         populationCountTextView.setText("population_count: " + populationCount);
                         activeEventsTextView.setText("Events: " + (predatorEventActive ? "Predator Active" : "No Predator") + ", " + (limitedFoodEventActive ? "Limited Food" : "Food Available"));
+
+                        populationDataSet.addEntry(new Entry(generationCount, (float) populationCount));
+                        lineData.notifyDataChanged(); // Notificar que los datos han cambiado
+                        lineChart.notifyDataSetChanged(); // Notificar al gráfico que los datos han cambiado
+                        lineChart.invalidate();
                     });
                 }
 

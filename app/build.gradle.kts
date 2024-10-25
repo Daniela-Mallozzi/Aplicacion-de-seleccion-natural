@@ -16,7 +16,7 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
-    buildTypes {
+     buildTypes {
         release {
             isMinifyEnabled = false
             proguardFiles(
@@ -25,6 +25,7 @@ android {
             )
         }
     }
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
@@ -32,7 +33,7 @@ android {
 }
 
 dependencies {
-
+    implementation (libs.mpandroidchart)
     implementation(libs.appcompat)
     implementation(libs.material)
     implementation(libs.activity)
